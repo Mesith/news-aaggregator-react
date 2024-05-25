@@ -1,3 +1,4 @@
+import { NextUIProvider } from "@nextui-org/react";
 import "./App.css";
 import TanstackProvider from "./providers/queryProvider";
 import { routeTree } from "./routeTree.gen";
@@ -10,7 +11,9 @@ function App() {
     <>
       <div>
         <TanstackProvider>
-          <RouterProvider router={router} />
+          <NextUIProvider>
+            <RouterProvider router={router} />
+          </NextUIProvider>
         </TanstackProvider>
       </div>
     </>

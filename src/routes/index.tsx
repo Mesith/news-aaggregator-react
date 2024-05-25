@@ -12,7 +12,7 @@ export const Route = createFileRoute("/")({
 const Home = () => {
   return (
     <div>
-      <h1>News Feed</h1>
+      <h1 className="text-blue-400">News Feed</h1>
     </div>
   );
 };
