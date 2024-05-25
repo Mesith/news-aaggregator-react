@@ -1,0 +1,5 @@
+.movieItem {
+  height: 300px;
+  width: 800px;
+  border: 4px dotted blue;
+}
