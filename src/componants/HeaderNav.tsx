@@ -15,6 +15,7 @@ import { useDisclosure } from "@nextui-org/react";
 import { PreferenceModal } from "./PreferenceModal";
 import { useState } from "react";
 import { FilterModal } from "./FilterModal";
+import { Route, useNavigate } from "@tanstack/react-router";
 
 export const HeaderNav = () => {
   const { isOpen, onOpen, onOpenChange } = useDisclosure();
@@ -26,6 +27,7 @@ export const HeaderNav = () => {
   const [placement, setPlacement] = useState<
     "auto" | "top" | "bottom" | "center" | "top-center" | "bottom-center"
   >("auto");
+  const navigate = useNavigate({ from: "/" });
   const searchInput = (
     <Input
       aria-label="Search"
@@ -38,6 +40,16 @@ export const HeaderNav = () => {
           K
         </Kbd>
       }
+      onKeyDown={(e: any) => {
+        if (e.key === "Enter") {
+          console.log("search", typeof e.target.value);
+          //   Cookies.set("searchCookie", e.target.value);
+          navigate({
+            to: "/",
+            search: { text: e.target.value },
+          });
+        }
+      }}
       labelPlacement="outside"
       placeholder="Search..."
       endContent={
@@ -63,12 +75,12 @@ export const HeaderNav = () => {
         isOpen={isOpen}
         placement={placement}
         onOpenChange={onOpenChange}
-      />
+      /> */}
       <FilterModal
         isOpen={isFilterOpen}
         placement={placement}
         onOpenChange={onFilterOpenChange}
-      /> */}
+      />
       <NavbarContent
         className="hidden sm:flex basis-1/5 sm:basis-full"
         justify="end"

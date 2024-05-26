@@ -3,7 +3,7 @@ import { NEWS_API_KEY, newsApi } from "./newsApiApi";
 
 export const fetchApiNews = async ({ pageParam }: { pageParam: number }) => {
   const response = await newsApi.get(
-    `everything?q=all&apiKey=c125779e311b4021bed9aed63aad6295&page=${pageParam ?? 1}&pageSize=10`
+    `everything?q=all&apiKey=${NEWS_API_KEY}&page=${pageParam ?? 1}&pageSize=10`
   );
   const todos = await response.json();
   return todos;
@@ -27,7 +27,6 @@ export const useNewsAPINews = (page: number = 1) => {
     queryKey: ["newsApiNews"],
     queryFn: ({ pageParam }) => fetchApiNews({ pageParam }),
     getNextPageParam: (lastPage, allPages) => {
-      console.log("BBBBB", allPages);
       return allPages?.length + 1;
     },
   });

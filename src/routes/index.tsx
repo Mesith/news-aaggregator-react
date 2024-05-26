@@ -4,6 +4,7 @@ import { useGurdianNews } from "../hooks/gurdian/useGurdianNewsFeed";
 import NewsList from "../componants/NewsList";
 import { useNewsAPINews } from "../hooks/newsApi/useNewsApiFeed";
 import { useCombinedNews } from "../hooks/combineNews/useCombineNews";
+import { useNYNews } from "../hooks/newyorkTimes/useNewsNYFeed";
 
 export const Route = createFileRoute("/")({
   component: () => <NewsFeed />,
@@ -17,7 +18,7 @@ export default function NewsFeed() {
   const observer = useRef<IntersectionObserver>();
 
   // const { data, error, fetchNextPage, hasNextPage, isFetching, isLoading } =
-  //   useNewsAPINews();
+  //   useNYNews();
 
   const { data, error, fetchNextPage, hasNextPage, isFetching, isLoading } =
     useCombinedNews();
