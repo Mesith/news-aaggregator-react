@@ -14,13 +14,15 @@ import {
   DropdownMenu,
   DropdownItem,
 } from "@nextui-org/dropdown";
-import { Autocomplete, AutocompleteItem } from "@nextui-org/autocomplete";
 import React from "react";
 import { siteConfig } from "../config";
 import { useInfiniteScroll } from "@nextui-org/use-infinite-scroll";
 import { Chip } from "@nextui-org/chip";
 import { useGurdianSections } from "../hooks/gurdian/loadGurdianSections";
 import { DatePicker } from "@nextui-org/date-picker";
+import { getRouteApi, useNavigate } from "@tanstack/react-router";
+
+const routeApi = getRouteApi("/");
 
 export const FilterModal = ({
   isOpen,
@@ -38,7 +40,7 @@ export const FilterModal = ({
     | "bottom-center";
 }) => {
   const [isOpenSectionList, setIsSectionOpen] = React.useState(false);
-  const [selectedKeys, setSelectedKeys] = React.useState(new Set([]));
+  const [selectedKeys, setSelectedKeys] = React.useState(new Set(["all"]));
   const {
     items: sections,
     hasMore: hasMoreSection,
@@ -55,11 +57,12 @@ export const FilterModal = ({
   });
 
   const selectedValue: string = React.useMemo(
-    () => Array.from(selectedKeys).join(", ").replaceAll("_", " "),
+    () => Array.from(selectedKeys).join(", ").split("_").join(" "),
     [selectedKeys]
   );
 
-  console.log(selectedValue);
+  const navigate = useNavigate({ from: "/" });
+  const routeSearch = routeApi.useSearch();
 
   return (
     <Modal isOpen={isOpen} onOpenChange={onOpenChange} placement={placement}>
@@ -67,7 +70,7 @@ export const FilterModal = ({
         {(onClose) => (
           <>
             <ModalHeader className="flex flex-col gap-1">
-              Filer News Articles
+              Filter News Articles
             </ModalHeader>
             <ModalBody>
               <label>Select news source</label>
@@ -85,11 +88,14 @@ export const FilterModal = ({
                   disallowEmptySelection
                   selectionMode="single"
                   selectedKeys={selectedKeys}
-                  onSelectionChange={setSelectedKeys}
+                  onSelectionChange={(val) => {
+                    console.log("BBBNNNN", val);
+                    setSelectedKeys(new Set([val.currentKey]));
+                  }}
                 >
                   {siteConfig.newsSourceItems.map((item) => {
                     return (
-                      <DropdownItem key={item.name}>{item.name}</DropdownItem>
+                      <DropdownItem key={item.id}>{item.name}</DropdownItem>
                     );
                   })}
                 </DropdownMenu>
@@ -131,7 +137,19 @@ export const FilterModal = ({
               <Button color="danger" variant="flat" onPress={onClose}>
                 Close
               </Button>
-              <Button color="primary" onPress={onClose}>
+              <Button
+                color="primary"
+                onPress={() => {
+                  navigate({
+                    to: "/",
+                    search: {
+                      ...routeSearch,
+                      source: Array.from(selectedKeys)[0],
+                    },
+                  });
+                  onClose();
+                }}
+              >
                 Filter
               </Button>
             </ModalFooter>

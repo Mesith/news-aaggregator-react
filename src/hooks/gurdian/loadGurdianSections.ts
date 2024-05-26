@@ -29,7 +29,6 @@ export function useGurdianSections({ fetchDelay = 0 } = {}) {
       }
 
       let json = await res.json();
-      console.log("DDDDDDDDDDDD", json);
 
       setHasMore(json.next !== null);
       json.response.results.forEach((section: any) => {

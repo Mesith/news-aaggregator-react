@@ -6,7 +6,7 @@ export const newsApi = ky.create({
   prefixUrl: NEWS_API_URL,
   headers: {},
   retry: {
-    limit: 10,
+    limit: 3,
     methods: ["get"],
     statusCodes: [413],
     backoffLimit: 13000,

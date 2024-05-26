@@ -15,7 +15,10 @@ import { useDisclosure } from "@nextui-org/react";
 import { PreferenceModal } from "./PreferenceModal";
 import { useState } from "react";
 import { FilterModal } from "./FilterModal";
-import { useNavigate } from "@tanstack/react-router";
+import { getRouteApi, useNavigate } from "@tanstack/react-router";
+import React from "react";
+
+const routeApi = getRouteApi("/");
 
 export const HeaderNav = () => {
   const { isOpen, onOpen, onOpenChange } = useDisclosure();
@@ -28,36 +31,59 @@ export const HeaderNav = () => {
     "auto" | "top" | "bottom" | "center" | "top-center" | "bottom-center"
   >("auto");
   const navigate = useNavigate({ from: "/" });
-  const searchInput = (
-    <Input
-      aria-label="Search"
-      classNames={{
-        inputWrapper: "bg-gray-300 sm:mt-0",
-        input: "text-sm",
-      }}
-      startContent={
-        <Kbd className="hidden lg:inline-block" keys={["command"]}>
-          K
-        </Kbd>
-      }
-      onKeyDown={(e: any) => {
-        if (e.key === "Enter") {
-          console.log("search", typeof e.target.value);
-          //   Cookies.set("searchCookie", e.target.value);
+  const SearchInput = () => {
+    const routeSearch = routeApi.useSearch();
+    const [value, setValue] = React.useState(routeSearch?.query || "");
+    console.log("VVVVVVVV", routeSearch);
+    return (
+      <Input
+        aria-label="Search"
+        classNames={{
+          inputWrapper: "bg-gray-300 sm:mt-0",
+          input: "text-sm",
+        }}
+        value={value}
+        onValueChange={setValue}
+        startContent={
+          <Kbd className="hidden lg:inline-block" keys={["command"]}>
+            K
+          </Kbd>
+        }
+        onKeyDown={(e: any) => {
+          if (e.key === "Enter") {
+            //   Cookies.set("searchCookie", e.target.value);
+            if (e.target.value) {
+              setValue(e.target.value);
+              navigate({
+                to: "/",
+                search: { ...routeSearch, query: e.target.value },
+              });
+            } else {
+              setValue("");
+              const { query, ...rest } = routeSearch;
+              navigate({
+                to: "/",
+                search: { ...rest },
+              });
+            }
+          }
+        }}
+        onClear={() => {
+          setValue("");
           navigate({
             to: "/",
-            search: { query: e.target.value },
+            search: { ...routeSearch },
           });
+        }}
+        labelPlacement="outside"
+        placeholder="Search..."
+        endContent={
+          <SearchIcon className="text-base text-default-400 pointer-events-none flex-shrink-0" />
         }
-      }}
-      labelPlacement="outside"
-      placeholder="Search..."
-      endContent={
-        <SearchIcon className="text-base text-default-400 pointer-events-none flex-shrink-0" />
-      }
-      type="search"
-    />
-  );
+        type="search"
+      />
+    );
+  };
 
   return (
     <NextUINavbar
@@ -76,16 +102,18 @@ export const HeaderNav = () => {
         placement={placement}
         onOpenChange={onOpenChange}
       /> */}
-      {/* <FilterModal
+      <FilterModal
         isOpen={isFilterOpen}
         placement={placement}
         onOpenChange={onFilterOpenChange}
-      /> */}
+      />
       <NavbarContent
         className="hidden sm:flex basis-1/5 sm:basis-full"
         justify="end"
       >
-        <NavbarItem className="hidden lg:flex">{searchInput}</NavbarItem>
+        <NavbarItem className="hidden lg:flex">
+          <SearchInput />
+        </NavbarItem>
         <NavbarItem
           className="hidden lg:flex cursor-pointer"
           onClick={() => {
@@ -137,7 +165,9 @@ export const HeaderNav = () => {
       </NavbarContent>
 
       <NavbarMenu>
-        <div className="mt-4">{searchInput}</div>
+        <div className="mt-4">
+          <SearchInput />
+        </div>
 
         <div className="mx-4 mt-2 flex flex-col gap-2">
           <NavbarItem

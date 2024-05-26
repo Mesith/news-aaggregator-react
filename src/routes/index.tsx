@@ -6,13 +6,8 @@ import { useCombinedNews } from "../hooks/combineNews/useCombineNews";
 export const Route = createFileRoute("/")({
   component: () => <NewsFeed />,
   beforeLoad: async (params: any) => {
-    console.log("AAAAAAAAA", params);
     return true;
   },
-  // loader: ({ context: { queryClient } }: any) => {
-  //   return useCombinedNews(searchParams?.query);
-  // },
-
   validateSearch: (search: Record<string, unknown>): any => {
     return true;
   },
@@ -21,10 +16,9 @@ export const Route = createFileRoute("/")({
 export default function NewsFeed() {
   const observer = useRef<IntersectionObserver>();
   const searchParams = Route.useSearch();
-  console.log("GGGGGGGGG", searchParams);
 
   const { data, error, fetchNextPage, hasNextPage, isFetching, isLoading } =
-    useCombinedNews(searchParams?.query);
+    useCombinedNews(searchParams?.query, searchParams.source);
 
   const lastElementRef = useCallback(
     (node: HTMLDivElement) => {

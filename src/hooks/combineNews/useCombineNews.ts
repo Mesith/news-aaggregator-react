@@ -20,22 +20,33 @@ const mergePages = (pages1, pages2, pages3) => {
 //   return [...pages1].sort((a, b) => new Date(b.date) - new Date(a.date));
 // };
 
-export const useCombinedNews = (search) => {
-  const combinedQuery = useInfiniteQuery({
-    queryKey: ["combinedNews", search],
+export const useCombinedNews = (search, fetchFrom = "all") => {
+  return useInfiniteQuery({
+    queryKey: ["combinedNews", search, fetchFrom],
     queryFn: async ({ pageParam = 1 }) => {
-      const results = await Promise.allSettled([
-        fetchApiNews({ pageParam, search }),
-        fetchGurdianNews({ pageParam, search }),
-        fetchNYNews({ pageParam, search }),
-      ]);
+      const apiPromises = [];
+      console.log("DDDDDDDDDDDDDDD", search);
+      console.log("AAAAAAAA", fetchFrom);
+      // Determine which APIs to call based on the fetchFrom parameter
+      if (fetchFrom === "all" || fetchFrom.includes("news-api")) {
+        apiPromises.push(fetchApiNews({ pageParam, search }));
+      }
+      if (fetchFrom === "all" || fetchFrom.includes("the-gradian")) {
+        apiPromises.push(fetchGurdianNews({ pageParam, search }));
+      }
+      if (fetchFrom === "all" || fetchFrom.includes("newyork-times")) {
+        apiPromises.push(fetchNYNews({ pageParam, search }));
+      }
 
-      const [apiResult, gurdianResult, nyResult] = results;
+      const results = await Promise.allSettled(apiPromises);
 
-      const apiPages = apiResult.status === "fulfilled" ? apiResult.value : [];
+      const apiPages =
+        results[0]?.status === "fulfilled" ? results[0]?.value : [];
       const gurdianPages =
-        gurdianResult.status === "fulfilled" ? gurdianResult?.value : [];
-      const nyPages = nyResult.status === "fulfilled" ? nyResult?.value : [];
+        results[1]?.status === "fulfilled" ? results[1]?.value : [];
+      const nyPages =
+        results[2]?.status === "fulfilled" ? results[2]?.value : [];
+
       return mergePages(
         transformApiNewsItem(apiPages?.articles || []),
         transformGurdianNewsItem(gurdianPages?.response || []),
@@ -43,12 +54,10 @@ export const useCombinedNews = (search) => {
       );
     },
     getNextPageParam: (lastPage, allPages) => {
-      const sourcePerPage = 2;
+      const sourcePerPage = 3; // Adjust based on number of sources
       const pagesLength = allPages.length / sourcePerPage;
-      const currentpage = pagesLength / 10;
+      const currentPage = pagesLength / 10;
       return allPages.length + 1;
     },
   });
-
-  return combinedQuery;
 };
