@@ -18,9 +18,9 @@ const NewsList = ({ news, lastref }: any) => {
             key={newsItem.id}
             className="border border-gray-300 p-24 m-24"
           >
-            <h2>{newsItem.webTitle}</h2>
+            <h2>{newsItem.title}</h2>
             <p>{newsItem.description}</p>
-            <p>{extractDomain(newsItem.webUrl)}</p>
+            <p>{extractDomain(newsItem.url)}</p>
           </div>
         );
       })}

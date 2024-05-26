@@ -1,10 +1,9 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useCallback, useMemo, useRef } from "react";
-import {
-  useGurdianNews,
-} from "../hooks/gurdian/useGurdianNewsFeed";
+import { useGurdianNews } from "../hooks/gurdian/useGurdianNewsFeed";
 import NewsList from "../componants/NewsList";
 import { useNewsAPINews } from "../hooks/newsApi/useNewsApiFeed";
+import { useCombinedNews } from "../hooks/combineNews/useCombineNews";
 
 export const Route = createFileRoute("/")({
   component: () => <NewsFeed />,
@@ -17,8 +16,13 @@ export const Route = createFileRoute("/")({
 export default function NewsFeed() {
   const observer = useRef<IntersectionObserver>();
 
+  // const { data, error, fetchNextPage, hasNextPage, isFetching, isLoading } =
+  //   useNewsAPINews();
+
   const { data, error, fetchNextPage, hasNextPage, isFetching, isLoading } =
-    useGurdianNews();
+    useCombinedNews();
+
+  console.log("SSSSSSSSSSSS", data);
 
   const lastElementRef = useCallback(
     (node: HTMLDivElement) => {
@@ -39,7 +43,7 @@ export default function NewsFeed() {
 
   const news = useMemo(() => {
     return data?.pages?.reduce((acc, page) => {
-      return [...acc, ...page?.response?.results];
+      return [...acc, ...page];
     }, []);
   }, [data]);
 
@@ -48,6 +52,8 @@ export default function NewsFeed() {
   //     return [...acc, ...page?.articles];
   //   }, []);
   // }, [data]);
+
+  console.log("NEWS", data);
 
   if (isLoading) return <h1>Loading News</h1>;
 
