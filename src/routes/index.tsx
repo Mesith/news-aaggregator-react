@@ -1,29 +1,30 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useCallback, useMemo, useRef } from "react";
-import { useGurdianNews } from "../hooks/gurdian/useGurdianNewsFeed";
 import NewsList from "../componants/NewsList";
-import { useNewsAPINews } from "../hooks/newsApi/useNewsApiFeed";
 import { useCombinedNews } from "../hooks/combineNews/useCombineNews";
-import { useNYNews } from "../hooks/newyorkTimes/useNewsNYFeed";
 
 export const Route = createFileRoute("/")({
   component: () => <NewsFeed />,
-  beforeLoad: async ({ search }) => {},
+  beforeLoad: async (params: any) => {
+    console.log("AAAAAAAAA", params);
+    return true;
+  },
+  // loader: ({ context: { queryClient } }: any) => {
+  //   return useCombinedNews(searchParams?.query);
+  // },
+
   validateSearch: (search: Record<string, unknown>): any => {
-    return search;
+    return true;
   },
 });
 
 export default function NewsFeed() {
   const observer = useRef<IntersectionObserver>();
-
-  // const { data, error, fetchNextPage, hasNextPage, isFetching, isLoading } =
-  //   useNYNews();
+  const searchParams = Route.useSearch();
+  console.log("GGGGGGGGG", searchParams);
 
   const { data, error, fetchNextPage, hasNextPage, isFetching, isLoading } =
-    useCombinedNews();
-
-  console.log("SSSSSSSSSSSS", data);
+    useCombinedNews(searchParams?.query);
 
   const lastElementRef = useCallback(
     (node: HTMLDivElement) => {
@@ -47,14 +48,6 @@ export default function NewsFeed() {
       return [...acc, ...page];
     }, []);
   }, [data]);
-
-  // const news = useMemo(() => {
-  //   return data?.pages?.reduce((acc, page) => {
-  //     return [...acc, ...page?.articles];
-  //   }, []);
-  // }, [data]);
-
-  console.log("NEWS", data);
 
   if (isLoading) return <h1>Loading News</h1>;
 

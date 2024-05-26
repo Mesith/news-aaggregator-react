@@ -1,25 +1,35 @@
 import { useInfiniteQuery } from "@tanstack/react-query";
 import { NEWS_API_KEY, newsApi } from "./newsApiApi";
 
-export const fetchApiNews = async ({ pageParam }: { pageParam: number }) => {
+export const fetchApiNews = async ({
+  pageParam,
+  search,
+}: {
+  pageParam: number;
+  search: string;
+}) => {
   const response = await newsApi.get(
-    `everything?q=all&apiKey=${NEWS_API_KEY}&page=${pageParam ?? 1}&pageSize=10`
+    `everything?q=${search ?? "all"}&apiKey=${NEWS_API_KEY}&page=${pageParam ?? 1}&pageSize=10`
   );
   const todos = await response.json();
   return todos;
 };
 
 export const transformApiNewsItem = (articles: any) => {
-  return articles?.map((article: any) => {
-    return {
-      id: article.url,
-      title: article.title,
-      author: article.fields?.byline,
-      date: article.webPublicationDate,
-      url: "https://newsapi.org",
-      imageUrl: article.urlToImage,
-    };
-  });
+  if (articles.length > 0) {
+    return articles?.map((article: any) => {
+      return {
+        id: article.url,
+        title: article.title,
+        author: article.fields?.byline,
+        date: article.webPublicationDate,
+        url: "https://newsapi.org",
+        imageUrl: article.urlToImage,
+      };
+    });
+  } else {
+    return [];
+  }
 };
 
 export const useNewsAPINews = (page: number = 1) => {

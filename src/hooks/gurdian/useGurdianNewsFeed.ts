@@ -3,6 +3,7 @@ import { GURDIAN_API_KEY, gurdianApi } from "./guardianApi";
 
 export const fetchGurdianNews = async ({
   pageParam,
+  search,
 }: {
   pageParam: number;
 }) => {
@@ -14,16 +15,19 @@ export const fetchGurdianNews = async ({
 };
 
 export const transformGurdianNewsItem = (response: any) => {
-  console.log("MMMMMMMMM", response);
-  return response?.results?.map((article: any) => {
-    return {
-      id: article.id,
-      title: article.webTitle,
-      author: article.fields?.byline,
-      date: article.webPublicationDate,
-      url: article.webUrl,
-    };
-  });
+  if (response && response?.results && response.results.length) {
+    return response?.results?.map((article: any) => {
+      return {
+        id: article.id,
+        title: article.webTitle,
+        author: article.fields?.byline,
+        date: article.webPublicationDate,
+        url: article.webUrl,
+      };
+    });
+  } else {
+    return [];
+  }
 };
 
 export const useGurdianNews = (page: number = 1) => {

@@ -5,4 +5,10 @@ export const NEWS_API_KEY = "c125779e311b4021bed9aed63aad6295";
 export const newsApi = ky.create({
   prefixUrl: NEWS_API_URL,
   headers: {},
+  retry: {
+    limit: 10,
+    methods: ["get"],
+    statusCodes: [413],
+    backoffLimit: 13000,
+  },
 });

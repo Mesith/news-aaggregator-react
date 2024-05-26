@@ -1,25 +1,34 @@
 import { useInfiniteQuery } from "@tanstack/react-query";
 import { newsNyApi, NY_API_KEY } from "./newsNYApi";
 
-export const fetchNYNews = async ({ pageParam }: { pageParam: number }) => {
+export const fetchNYNews = async ({
+  pageParam,
+  search,
+}: {
+  pageParam: number;
+  search: string;
+}) => {
+  console.log("BBBBBBBB", search);
   const response = await newsNyApi.get(
-    `articlesearch.json?q=election&api-key=${NY_API_KEY}&page=${pageParam}`
+    `articlesearch.json?q=${search ?? "all"}&api-key=${NY_API_KEY}&page=${pageParam}`
   );
   const todos = await response.json();
   return todos;
 };
 
 export const transformNyNewsItem = (articles: any) => {
-  return articles?.docs?.map((article: any) => {
-    return {
-      id: article.id,
-      title: article?.headline?.main,
-      description: article?.lead_paragraph,
-      author: article.fields?.byline,
-      date: article.webPublicationDate,
-      url: article.web_url,
-    };
-  });
+  if (articles?.length > 0) {
+    return articles?.docs?.map((article: any) => {
+      return {
+        id: article.id,
+        title: article?.headline?.main,
+        description: article?.lead_paragraph,
+        author: article.fields?.byline,
+        date: article.webPublicationDate,
+        url: article.web_url,
+      };
+    });
+  } else return [];
 };
 
 export const useNYNews = (page: number = 1) => {

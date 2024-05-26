@@ -15,7 +15,7 @@ import { useDisclosure } from "@nextui-org/react";
 import { PreferenceModal } from "./PreferenceModal";
 import { useState } from "react";
 import { FilterModal } from "./FilterModal";
-import { Route, useNavigate } from "@tanstack/react-router";
+import { useNavigate } from "@tanstack/react-router";
 
 export const HeaderNav = () => {
   const { isOpen, onOpen, onOpenChange } = useDisclosure();
@@ -46,7 +46,7 @@ export const HeaderNav = () => {
           //   Cookies.set("searchCookie", e.target.value);
           navigate({
             to: "/",
-            search: { text: e.target.value },
+            search: { query: e.target.value },
           });
         }
       }}
@@ -76,11 +76,11 @@ export const HeaderNav = () => {
         placement={placement}
         onOpenChange={onOpenChange}
       /> */}
-      <FilterModal
+      {/* <FilterModal
         isOpen={isFilterOpen}
         placement={placement}
         onOpenChange={onFilterOpenChange}
-      />
+      /> */}
       <NavbarContent
         className="hidden sm:flex basis-1/5 sm:basis-full"
         justify="end"
