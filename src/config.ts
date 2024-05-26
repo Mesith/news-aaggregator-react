@@ -2,16 +2,21 @@ export const siteConfig = {
   newsSourceItems: [
     {
       id: 1,
-      name: "The Guardian",
+      name: "All",
       url: "https://abc.com",
     },
     {
       id: 2,
+      name: "The Guardian",
+      url: "https://abc.com",
+    },
+    {
+      id: 3,
       name: "Newyork Times",
       url: "https://xyz.com",
     },
     {
-      id: 3,
+      id: 4,
       name: "BBC",
       url: "https://xyz.com",
     },

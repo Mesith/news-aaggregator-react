@@ -17,9 +17,10 @@ import {
 import { Autocomplete, AutocompleteItem } from "@nextui-org/autocomplete";
 import React from "react";
 import { siteConfig } from "../config";
-import { usePokemonList } from "../hooks/useGurdianAuthors";
 import { useInfiniteScroll } from "@nextui-org/use-infinite-scroll";
 import { Chip } from "@nextui-org/chip";
+import { useGurdianSections } from "../hooks/gurdian/loadGurdianSections";
+import { DatePicker } from "@nextui-org/date-picker";
 
 export const FilterModal = ({
   isOpen,
@@ -36,17 +37,21 @@ export const FilterModal = ({
     | "top-center"
     | "bottom-center";
 }) => {
-  const [isOpenAuthorsList, setIsOpen] = React.useState(false);
+  const [isOpenSectionList, setIsSectionOpen] = React.useState(false);
   const [selectedKeys, setSelectedKeys] = React.useState(new Set([]));
-  const { items, hasMore, isLoading, onLoadMore } = usePokemonList({
+  const {
+    items: sections,
+    hasMore: hasMoreSection,
+    isLoading: isLoadingSection,
+    onLoadMore: onLoadMoreSection,
+  } = useGurdianSections({
     fetchDelay: 1500,
   });
-
-  const [, scrollerRef] = useInfiniteScroll({
-    hasMore,
-    isEnabled: isOpenAuthorsList,
-    shouldUseLoader: false, // We don't want to show the loader at the bottom of the list
-    onLoadMore,
+  const [, scrollerSectionRef] = useInfiniteScroll({
+    hasMore: hasMoreSection,
+    isEnabled: isOpenSectionList,
+    shouldUseLoader: false,
+    onLoadMore: onLoadMoreSection,
   });
 
   const selectedValue: string = React.useMemo(
@@ -90,23 +95,17 @@ export const FilterModal = ({
                 </DropdownMenu>
               </Dropdown>
 
-              <Autocomplete label="Select an news category">
-                {siteConfig.categories.map((category) => (
-                  <AutocompleteItem key={category.id} value={category.id}>
-                    {category.name}
-                  </AutocompleteItem>
-                ))}
-              </Autocomplete>
+              <DatePicker label="Date" />
 
               <Select
-                isLoading={isLoading}
-                items={items}
-                label="Pick Authors"
-                placeholder="Select Authors"
-                scrollRef={scrollerRef}
-                onOpenChange={setIsOpen}
+                isLoading={isLoadingSection}
+                items={sections}
+                label="Filter by Section"
+                placeholder="Select Section"
+                scrollRef={scrollerSectionRef}
+                onOpenChange={setIsSectionOpen}
                 isMultiline={true}
-                selectionMode="multiple"
+                selectionMode="single"
                 classNames={{
                   base: "w-full",
                   trigger: "min-h-12 py-2",
@@ -115,7 +114,7 @@ export const FilterModal = ({
                   return (
                     <div className="flex flex-wrap gap-2">
                       {items?.map((item) => (
-                        <Chip key={item.name}>{item?.data.byline}</Chip>
+                        <Chip key={item.name}>{item?.data.name}</Chip>
                       ))}
                     </div>
                   );
@@ -123,7 +122,7 @@ export const FilterModal = ({
               >
                 {(item) => (
                   <SelectItem key={item?.id} className="capitalize">
-                    {item?.byline}
+                    {item?.name}
                   </SelectItem>
                 )}
               </Select>
@@ -133,7 +132,7 @@ export const FilterModal = ({
                 Close
               </Button>
               <Button color="primary" onPress={onClose}>
-                Save
+                Filter
               </Button>
             </ModalFooter>
           </>

@@ -1,15 +1,16 @@
 import React from "react";
-export function useGurdianAuthors({ fetchDelay = 0 } = {}) {
+import { GURDIAN_API_KEY, GURDIAN_URL } from "./guardianApi";
+export function useGurdianSections({ fetchDelay = 0 } = {}) {
   const [items, setItems] = React.useState([]);
   const [hasMore, setHasMore] = React.useState(true);
   const [isLoading, setIsLoading] = React.useState(false);
   const [offset, setOffset] = React.useState(0);
   const limit = 1;
 
-  const loadPokemon = async (currentOffset: any) => {
+  const loadGurdianSections = async (currentOffset: any) => {
     const controller = new AbortController();
     const { signal } = controller;
-    const authorsSet = new Set();
+    const sectionsSet = new Set();
 
     try {
       setIsLoading(true);
@@ -19,7 +20,7 @@ export function useGurdianAuthors({ fetchDelay = 0 } = {}) {
       }
 
       let res = await fetch(
-        `https://content.guardianapis.com/search?api-key=88e1a437-05f0-44b1-9d2d-48953b1f4c48&&show-fields=byline&page=${currentOffset}&page=${limit}`,
+        `${GURDIAN_URL}/sections?api-key=${GURDIAN_API_KEY}&&show-fields=byline&page=${currentOffset}&page=${limit}`,
         { signal }
       );
 
@@ -28,17 +29,13 @@ export function useGurdianAuthors({ fetchDelay = 0 } = {}) {
       }
 
       let json = await res.json();
+      console.log("DDDDDDDDDDDD", json);
 
       setHasMore(json.next !== null);
-      json.response.results.forEach((article: any) => {
-        if (article.fields && article.fields.byline) {
-          const byline = article.fields.byline.trim();
-          if (byline) {
-            authorsSet.add({ byline, id: article?.id });
-          }
-        }
+      json.response.results.forEach((section: any) => {
+        sectionsSet.add({ name: section?.webTitle, id: section?.id });
       });
-      setItems((prevItems: any) => [...prevItems, ...Array.from(authorsSet)]);
+      setItems((prevItems: any) => [...prevItems, ...Array.from(sectionsSet)]);
     } catch (error) {
       if (error.name === "AbortError") {
         console.log("Fetch aborted");
@@ -51,14 +48,14 @@ export function useGurdianAuthors({ fetchDelay = 0 } = {}) {
   };
 
   React.useEffect(() => {
-    loadPokemon(offset);
+    loadGurdianSections(offset);
   }, []);
 
   const onLoadMore = () => {
     const newOffset = offset + 1;
 
     setOffset(newOffset);
-    loadPokemon(newOffset);
+    loadGurdianSections(newOffset);
   };
 
   return {
