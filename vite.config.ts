@@ -4,9 +4,17 @@ import { TanStackRouterVite } from "@tanstack/router-vite-plugin";
 
 // https://vitejs.dev/config/
 export default defineConfig({
+  base: "/",
   plugins: [react(), TanStackRouterVite()],
   server: {
-    open: true,
+    port: 8080,
+    strictPort: true,
+    host: true,
+    origin: "http://0.0.0.0:8080",
+  },
+  preview: {
+    port: 8080,
+    strictPort: true,
   },
   test: {
     globals: true,

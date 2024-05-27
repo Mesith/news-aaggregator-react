@@ -1,6 +1,6 @@
 import ky from "ky";
 export const NEWS_API_URL = "https://newsapi.org/v2";
-export const NEWS_API_KEY = "c125779e311b4021bed9aed63aad6295";
+export const NEWS_API_KEY = "a9c35fa05f26435491427f96ff051a7a";
 
 export const newsApi = ky.create({
   prefixUrl: NEWS_API_URL,
