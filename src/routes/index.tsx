@@ -65,20 +65,6 @@ const NewsFeed = () => {
     [fetchNextPage, hasNextPage, isFetching, isLoading]
   );
 
-  // useEffect(() => {
-  //   if (source || category || author) {
-  //     navigateWithFilteredSearchParams({
-  //       navigate,
-  //       to: "/",
-  //       searchParams: {
-  //         source: source,
-  //         category: category,
-  //         byline: author ?? null,
-  //       },
-  //     });
-  //   }
-  //   return () => {};
-  // }, [source, category, author, navigate]);
 
   const news: any = useMemo(() => {
     return data?.pages?.reduce((acc: any, page: any) => {
@@ -111,7 +97,11 @@ const NewsFeed = () => {
     <div>
       <NewsList news={news} lastref={lastElementRef} />
 
-      {isFetching && <div>Loading more news...</div>}
+      {true && (
+        <div className="w-fill h-16 bg-orange-200 content-center text-center font-semibold">
+          <Spinner />
+        </div>
+      )}
     </div>
   );
 };

@@ -7,6 +7,7 @@ import {
   ModalFooter,
   Select,
   SelectItem,
+  Input,
 } from "@nextui-org/react";
 import {
   Dropdown,
@@ -14,16 +15,11 @@ import {
   DropdownMenu,
   DropdownItem,
 } from "@nextui-org/dropdown";
-import React, { useEffect } from "react";
+import React from "react";
 import { siteConfig } from "../config";
-import { DatePicker } from "@nextui-org/date-picker";
-import { getRouteApi, useNavigate } from "@tanstack/react-router";
-import { parseDate } from "@internationalized/date";
-import { navigateWithFilteredSearchParams } from "../util/util";
+import Cookies from "js-cookie";
 
-const routeApi = getRouteApi("/");
-
-export const FilterModal = ({
+export const PreferenceModal = ({
   isOpen,
   onOpenChange,
   placement,
@@ -38,19 +34,14 @@ export const FilterModal = ({
     | "top-center"
     | "bottom-center";
 }) => {
-  const [selectedKeys, setSelectedKeys] = React.useState<any>(null);
-  const [category, setCategory] = React.useState<any>(new Set([]));
-  const [date, setDate] = React.useState<any>(null);
+  const [selectedKeys, setSelectedKeys] = React.useState<any>(() =>
+    Cookies.get("source")
+  );
+  const [category, setCategory] = React.useState<any>(() =>
+    Cookies.get("category")
+  );
 
-  const navigate = useNavigate({ from: "/" });
-  const routeSearch = routeApi.useSearch();
-
-  useEffect(() => {
-    setSelectedKeys(routeSearch?.source);
-    setDate(routeSearch?.date ? parseDate(routeSearch?.date) : null);
-    setCategory(routeSearch?.category);
-    return () => {};
-  }, [routeSearch]);
+  const [author, setAuthor] = React.useState(Cookies.get("author"));
 
   return (
     <Modal isOpen={isOpen} onOpenChange={onOpenChange} placement={placement}>
@@ -58,7 +49,7 @@ export const FilterModal = ({
         {(onClose) => (
           <>
             <ModalHeader className="flex flex-col gap-1">
-              Filter News Articles
+              Set Your Preferences
             </ModalHeader>
             <ModalBody>
               <label>Select news source</label>
@@ -77,7 +68,9 @@ export const FilterModal = ({
                   selectionMode="single"
                   selectedKeys={selectedKeys}
                   onSelectionChange={(val: any) => {
+                    //setSelectedKeys(new Set([val.currentKey]));
                     setSelectedKeys(val.currentKey);
+                    Cookies.set("source", val.currentKey);
                   }}
                 >
                   {siteConfig.newsSourceItems.map((item) => {
@@ -88,49 +81,75 @@ export const FilterModal = ({
                 </DropdownMenu>
               </Dropdown>
 
-              <DatePicker
-                label="Date"
-                onChange={(e: any) => {
-                  setDate(e);
-                }}
-                value={date}
-              />
-
               <Select
                 label="Select a category"
                 selectedKeys={new Set([category])}
                 onSelectionChange={(e: any) => {
                   setCategory(e?.currentKey);
+                  Cookies.set("category", e.currentKey);
                 }}
               >
                 {siteConfig?.categories?.map((category) => (
-                  <SelectItem key={category.id} value={category.id}>
+                  <SelectItem  key={category.id} value={category.id}>
                     {category.name}
                   </SelectItem>
                 ))}
               </Select>
+
+              <Input
+                label="Authors"
+                variant="bordered"
+                placeholder="Enter preferred authors name"
+                onValueChange={setAuthor}
+                value={author}
+                onKeyDown={(e: any) => {
+                  if (e.key === "Enter") {
+                     onClose();
+                    if (e.target.value) {
+                      Cookies.set("author", e.target.value);
+                    } else {
+                      Cookies.remove("author");
+                    }
+                  }
+                 
+                }}
+                endContent={
+                  <button
+                    className="focus:outline-none"
+                    type="button"
+                    onClick={() => {
+                      if (author) {
+                        Cookies.set("author", author);
+                      } else {
+                        Cookies.remove("author");
+                      }
+                    }}
+                  >
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      fill="none"
+                      viewBox="0 0 24 24"
+                      strokeWidth={1.5}
+                      stroke="currentColor"
+                      className="size-6"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        d="M12 9v6m3-3H9m12 0a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z"
+                      />
+                    </svg>
+                  </button>
+                }
+                type={"text"}
+              />
             </ModalBody>
             <ModalFooter>
               <Button color="danger" variant="flat" onPress={onClose}>
                 Close
               </Button>
-              <Button
-                color="primary"
-                onPress={() => {
-                  navigateWithFilteredSearchParams({
-                    navigate,
-                    to: "/",
-                    searchParams: {
-                      ...routeSearch,
-                      source: selectedKeys,
-                      date: date ? date?.toString() : null,
-                      category: category?.size === 0 ? null : category,
-                    },
-                  });
-                  onClose();
-                }}
-              >
-                Filter
+              <Button color="primary" onPress={onClose}>
+                Save
               </Button>
             </ModalFooter>
           </>

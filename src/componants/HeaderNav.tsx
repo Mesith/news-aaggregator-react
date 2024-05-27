@@ -131,6 +131,7 @@ export const HeaderNav = () => {
             strokeWidth={1.5}
             stroke="currentColor"
             className="size-6"
+            name="preferences"
           >
             <path
               strokeLinecap="round"
