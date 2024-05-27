@@ -47,7 +47,6 @@ If you are using Docker, this app is configured for Docker. Follow these steps t
 ## Technology Used
 
 - Build Tool: **Vite** (https://vitejs.dev/) - for fast development and build performance.
-- State Management: **Redux** (https://redux.js.org/) - for predictable and maintainable state management.
 - TanStack Router: Navigation library (https://tanstack.com/router)
 - Tanstack Query : Query state management (https://tanstack.com/query/latest)
 - UI Framework: **React 18.2** (https://react.dev/) - for building dynamic and interactive user interfaces.
