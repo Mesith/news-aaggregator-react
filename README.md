@@ -1,5 +1,5 @@
 
-# News Aggrigator APP
+# News Aggregator App
 
 Welcome to the News Aggregator App! This app fetches the latest news from three sources: NewsAPI.org, The Guardian, and The New York Times, creating a comprehensive news feed for users.
 
