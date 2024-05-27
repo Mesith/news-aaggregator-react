@@ -1,3 +1,5 @@
+import { NewsFeedSerchParamProps } from "../routes";
+
 export const navigateWithFilteredSearchParams = ({
   navigate,
   to,
@@ -15,4 +17,14 @@ export const navigateWithFilteredSearchParams = ({
     to,
     search: filteredSearchParams,
   });
+};
+
+export const getFilteredSearchParams = (
+  searchParams: NewsFeedSerchParamProps
+) => {
+  const filteredSearchParams = Object.fromEntries(
+    Object.entries(searchParams).filter(([_, value]) => value != null)
+  );
+
+  return filteredSearchParams;
 };

@@ -18,8 +18,8 @@ import React, { useEffect } from "react";
 import { siteConfig } from "../config";
 import { DatePicker } from "@nextui-org/date-picker";
 import { getRouteApi, useNavigate } from "@tanstack/react-router";
-import { navigateWithFilteredSearchParams } from "../util/util";
 import { parseDate } from "@internationalized/date";
+import { navigateWithFilteredSearchParams } from "../util/util";
 
 const routeApi = getRouteApi("/");
 
@@ -38,14 +38,14 @@ export const FilterModal = ({
     | "top-center"
     | "bottom-center";
 }) => {
-  const [selectedKeys, setSelectedKeys] = React.useState(new Set([]));
+  const [selectedKeys, setSelectedKeys] = React.useState<any>(new Set([]));
   const [category, setCategory] = React.useState<any>(new Set([]));
   const [date, setDate] = React.useState<any>(null);
 
-  const selectedValue: string = React.useMemo(
-    () => Array.from(selectedKeys).join(", ").split("_").join(" "),
-    [selectedKeys]
-  );
+  // const selectedValue: string = React.useMemo(
+  //   () => Array.from(selectedKeys).join(", ").split("_").join(" "),
+  //   [selectedKeys]
+  // );
 
   const navigate = useNavigate({ from: "/" });
   const routeSearch = routeApi.useSearch();
@@ -70,8 +70,8 @@ export const FilterModal = ({
               <Dropdown>
                 <DropdownTrigger>
                   <Button variant="bordered" className="capitalize">
-                    {selectedValue.length > 0
-                      ? selectedValue
+                    {selectedKeys?.length > 0
+                      ? selectedKeys
                       : "Select Preferred News Source"}
                   </Button>
                 </DropdownTrigger>
@@ -83,7 +83,6 @@ export const FilterModal = ({
                   selectedKeys={selectedKeys}
                   onSelectionChange={(val: any) => {
                     setSelectedKeys(val.currentKey);
-                    //setSelectedKeys(new Set([val.currentKey]));
                   }}
                 >
                   {siteConfig.newsSourceItems.map((item) => {
@@ -128,10 +127,7 @@ export const FilterModal = ({
                     to: "/",
                     searchParams: {
                       ...routeSearch,
-                      source:
-                        selectedKeys.size === 0
-                          ? null
-                          : Array.from(selectedKeys)[0],
+                      source:selectedKeys,
                       date: date ? date?.toString() : null,
                       category: category?.size === 0 ? null : category,
                     },

@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-unused-vars */
 import { useInfiniteQuery } from "@tanstack/react-query";
 import {
   fetchGurdianNews,
@@ -10,62 +9,64 @@ import {
   transformNyNewsItem,
 } from "../newyorkTimes/useNewsNYFeed";
 
-const mergePages = (pages1, pages2, pages3) => {
-  return [...pages1, ...pages2, ...pages3].sort(
-    (a, b) => new Date(b.date) - new Date(a.date)
-  );
+const mergePages = (pages1: any[], pages2: any[], pages3: any[]) => {
+  return [...pages1, ...pages2, ...pages3].sort((a, b) => {
+    const dateA = new Date(a.date);
+    const dateB = new Date(b.date);
+    return dateB.getTime() - dateA.getTime();
+  });
 };
 
-// const mergePages = (pages1) => {
-//   return [...pages1].sort((a, b) => new Date(b.date) - new Date(a.date));
-// };
-
 export const useCombinedNews = (
-  fetchFrom?: string,
   search?: string,
+  fetchFrom?: string,
   date?: string,
-  category: string | null = null
+  category?: string,
+  byline?: string
 ) => {
   return useInfiniteQuery({
-    queryKey: ["combinedNews", search, fetchFrom, date, category],
+    queryKey: ["combinedNews", search, fetchFrom, date, category, byline],
+    initialPageParam: 1,
     queryFn: async ({ pageParam = 1 }) => {
       const apiPromises = [];
-      // Determine which APIs to call based on the fetchFrom parameter
       if (fetchFrom === undefined || fetchFrom.includes("news-api")) {
         apiPromises.push(fetchApiNews({ pageParam, search, date }));
       }
-      if (fetchFrom === undefined || fetchFrom.includes("the-gradian")) {
-        apiPromises.push(fetchGurdianNews({ pageParam, search, date }));
+      if (fetchFrom === undefined || fetchFrom.includes("the-guardian")) {
+        apiPromises.push(fetchGurdianNews({ pageParam, search, date, byline }));
       }
       if (fetchFrom === undefined || fetchFrom.includes("newyork-times")) {
-        apiPromises.push(fetchNYNews({ pageParam, search, date }));
+        apiPromises.push(fetchNYNews({ pageParam, search, date, byline }));
       }
 
       const results = await Promise.allSettled(apiPromises);
 
-      const apiPages =
+      const apiPages: any =
         results[0]?.status === "fulfilled" ? results[0]?.value : [];
-      const gurdianPages =
+      const gurdianPages: any =
         results[1]?.status === "fulfilled" ? results[1]?.value : [];
-      const nyPages =
+      const nyPages: any =
         results[2]?.status === "fulfilled" ? results[2]?.value : [];
 
-      console.log("AAAAAAAAA", apiPages);
-      console.log("BBBBBBBB", gurdianPages);
-      console.log("CCCCCCCC", nyPages);
-
       if (fetchFrom === "news-api") {
-        return mergePages(transformApiNewsItem(apiPages?.articles || []));
+        return mergePages(
+          transformApiNewsItem(apiPages?.articles || []),
+          [],
+          []
+        );
       } else if (fetchFrom === "newyork-times") {
         const t = mergePages(
           transformNyNewsItem(apiPages?.response || []),
           [],
           []
         );
-        console.log("OOOOOOOOOO", t);
         return t;
-      } else if (fetchFrom === "the-gradian") {
-        return mergePages(transformGurdianNewsItem(apiPages?.response || []));
+      } else if (fetchFrom === "the-guardian") {
+        return mergePages(
+          transformGurdianNewsItem(apiPages?.response || []),
+          [],
+          []
+        );
       } else {
         return mergePages(
           transformApiNewsItem(apiPages?.articles || []),
@@ -74,10 +75,7 @@ export const useCombinedNews = (
         );
       }
     },
-    getNextPageParam: (lastPage, allPages) => {
-      const sourcePerPage = 3; // Adjust based on number of sources
-      const pagesLength = allPages.length / sourcePerPage;
-      const currentPage = pagesLength / 10;
+    getNextPageParam: (allPages: any) => {
       return allPages.length + 1;
     },
   });

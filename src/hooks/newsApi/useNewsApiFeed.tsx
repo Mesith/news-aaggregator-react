@@ -1,4 +1,3 @@
-
 import { NEWS_API_KEY, newsApi } from "./newsApiApi";
 
 export const fetchApiNews = async ({
@@ -6,16 +5,21 @@ export const fetchApiNews = async ({
   search = "all",
   date,
   category,
+  byline,
 }: {
   pageParam?: number;
   search?: string;
   date?: string;
   category?: string;
+  byline?: string;
 }) => {
   try {
     let url = `everything?q=${encodeURIComponent(search || category || "all")}&apiKey=${NEWS_API_KEY}&page=${pageParam}&pageSize=10&sort=popularity`;
     if (date) {
       url += `&from=${date}`;
+    }
+    if (byline) {
+      url += `&byline=${byline}`;
     }
     const response = await newsApi.get(url);
 
@@ -29,7 +33,6 @@ export const fetchApiNews = async ({
     throw error;
   }
 };
-
 
 export const transformApiNewsItem = (articles: any) => {
   if (articles.length > 0) {
@@ -47,4 +50,3 @@ export const transformApiNewsItem = (articles: any) => {
     return [];
   }
 };
-

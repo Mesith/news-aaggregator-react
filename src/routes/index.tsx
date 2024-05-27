@@ -1,35 +1,51 @@
-import { createFileRoute, useNavigate } from "@tanstack/react-router";
-import { useCallback, useEffect, useMemo, useRef } from "react";
+import { createFileRoute, redirect } from "@tanstack/react-router";
+import { useCallback, useMemo, useRef } from "react";
 import NewsList from "../componants/NewsList";
 import { useCombinedNews } from "../hooks/combineNews/useCombineNews";
 import { Spinner } from "@nextui-org/spinner";
 import Cookies from "js-cookie";
-import { navigateWithFilteredSearchParams } from "../util/util";
+import { getFilteredSearchParams } from "../util/util";
 
 export interface NewsFeedSerchParamProps {
   query?: string;
   source?: string;
   date?: string;
   category?: string;
+  byline?: string;
+  redirect?: boolean;
 }
 
 export const Route = createFileRoute("/")({
   component: () => <NewsFeed />,
+  beforeLoad: async ({ location }: any) => {
+    const source = Cookies.get("source");
+    const category = Cookies.get("category");
+    const author = Cookies.get("author");
+
+    if (!location.search?.redirect && (category || author || author)) {
+      throw redirect({
+        to: "/",
+        search: getFilteredSearchParams({
+          source: source,
+          category: category,
+          byline: author,
+          redirect: true,
+        }),
+      });
+    }
+  },
 });
 
 const NewsFeed = () => {
   const observer = useRef<IntersectionObserver>();
   const searchParams = Route.useSearch<NewsFeedSerchParamProps>();
-  const navigate = useNavigate({ from: "/" });
-  const source = Cookies.get("source");
-  const category = Cookies.get("category");
-
   const { data, error, fetchNextPage, hasNextPage, isFetching, isLoading } =
     useCombinedNews(
       searchParams?.query,
-      searchParams.source,
-      searchParams.date,
-      searchParams.category
+      searchParams?.source,
+      searchParams?.date,
+      searchParams?.category,
+      searchParams?.byline
     );
 
   const lastElementRef = useCallback(
@@ -49,19 +65,20 @@ const NewsFeed = () => {
     [fetchNextPage, hasNextPage, isFetching, isLoading]
   );
 
-  useEffect(() => {
-    if (source || category) {
-      navigateWithFilteredSearchParams({
-        navigate,
-        to: "/",
-        searchParams: {
-          source: source === "all" ? null : source,
-          category: category,
-        },
-      });
-    }
-    return () => {};
-  }, [source, category, navigate]);
+  // useEffect(() => {
+  //   if (source || category || author) {
+  //     navigateWithFilteredSearchParams({
+  //       navigate,
+  //       to: "/",
+  //       searchParams: {
+  //         source: source,
+  //         category: category,
+  //         byline: author ?? null,
+  //       },
+  //     });
+  //   }
+  //   return () => {};
+  // }, [source, category, author, navigate]);
 
   const news: any = useMemo(() => {
     return data?.pages?.reduce((acc: any, page: any) => {

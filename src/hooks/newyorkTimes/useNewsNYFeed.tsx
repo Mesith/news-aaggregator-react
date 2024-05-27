@@ -1,4 +1,3 @@
-
 import { newsNyApi, NY_API_KEY } from "./newsNYApi";
 
 export const fetchNYNews = async ({
@@ -6,11 +5,13 @@ export const fetchNYNews = async ({
   search = "all",
   date,
   category,
+  byline,
 }: {
   pageParam?: number;
   search?: string;
   date?: string;
   category?: string;
+  byline?: string;
 }) => {
   try {
     const params = new URLSearchParams({
@@ -24,6 +25,9 @@ export const fetchNYNews = async ({
     }
     if (category) {
       params.append("section_name", category);
+    }
+    if (byline) {
+      params.append("byline", byline);
     }
 
     const url = `articlesearch.json?${params.toString()}`;
@@ -45,12 +49,12 @@ export const transformNyNewsItem = (articles: any) => {
   if (articles?.docs?.length > 0) {
     return articles?.docs?.map((article: any) => {
       return {
-        id: article.id,
+        id: article._id,
         title: article?.headline?.main,
-        description: article?.lead_paragraph,
-        author: article.fields?.byline,
+        description: article?.snippet,
         date: article.webPublicationDate,
         url: article.web_url,
+        byline: article?.byline?.original,
       };
     });
   } else return [];

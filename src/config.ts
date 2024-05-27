@@ -6,7 +6,7 @@ export const siteConfig = {
       url: "https://abc.com",
     },
     {
-      id: "the-gradian",
+      id: "the-guardian",
       name: "The Guardian",
       url: "https://abc.com",
     },

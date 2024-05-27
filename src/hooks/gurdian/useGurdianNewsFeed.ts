@@ -1,4 +1,3 @@
-
 import { GURDIAN_API_KEY, gurdianApi } from "./guardianApi";
 
 export const fetchGurdianNews = async ({
@@ -6,18 +5,22 @@ export const fetchGurdianNews = async ({
   search,
   date,
   category,
+  byline,
 }: {
-  pageParam: number;
-  search: string;
+  pageParam?: number;
+  search?: string;
   date?: string;
   category?: string;
+  byline?: string;
 }) => {
-  const params = new URLSearchParams({
-    "api-key": GURDIAN_API_KEY,
-    q: search,
-    "show-fields": "byline",
-    page: String(pageParam ?? 1),
-  });
+  const params = new URLSearchParams();
+  params.append("api-key", GURDIAN_API_KEY);
+  params.append("q", search || "");
+  params.append("show-fields", "byline");
+  params.append("page", String(pageParam ?? 1));
+  if (byline) {
+    params.append("byline", byline);
+  }
 
   if (date) params.append("from-date", date);
   if (category) params.append("section", category);
@@ -42,4 +45,3 @@ export const transformGurdianNewsItem = (response: any) => {
     return [];
   }
 };
-

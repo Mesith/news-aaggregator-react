@@ -11,11 +11,12 @@ const NewsList = ({
   return (
     <div>
       {news?.map((newsItem, index) => (
-        <NewsItem
-          key={newsItem.id}
-          newsItem={newsItem}
-          lastref={index === news.length - 1 ? lastref : null}
-        />
+        <div key={newsItem?.id}>
+          <NewsItem
+            newsItem={newsItem}
+            lastref={index === news.length - 1 ? lastref : null}
+          />
+        </div>
       ))}
     </div>
   );
