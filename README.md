@@ -3,6 +3,12 @@
 
 Welcome to the News Aggregator App! This app fetches the latest news from three sources: NewsAPI.org, The Guardian, and The New York Times, creating a comprehensive news feed for users.
 
+
+
+https://github.com/Mesith/news-aggregator-react/assets/5463037/5118ab34-47bb-4066-b5f1-bed0d8ec566c
+
+
+
 ### Key Features:
 - **Multi-Source News Feed:** Aggregates news from NewsAPI.org, The Guardian, and The New York Times.
 - **User Preferences:** Save preferences for preferred news sources, dates, and authors.
