@@ -14,13 +14,12 @@ import {
   DropdownMenu,
   DropdownItem,
 } from "@nextui-org/dropdown";
-import React from "react";
+import React, { useEffect } from "react";
 import { siteConfig } from "../config";
-import { useInfiniteScroll } from "@nextui-org/use-infinite-scroll";
-import { Chip } from "@nextui-org/chip";
-import { useGurdianSections } from "../hooks/gurdian/loadGurdianSections";
 import { DatePicker } from "@nextui-org/date-picker";
 import { getRouteApi, useNavigate } from "@tanstack/react-router";
+import { navigateWithFilteredSearchParams } from "../util/util";
+import { parseDate } from "@internationalized/date";
 
 const routeApi = getRouteApi("/");
 
@@ -39,22 +38,9 @@ export const FilterModal = ({
     | "top-center"
     | "bottom-center";
 }) => {
-  const [isOpenSectionList, setIsSectionOpen] = React.useState(false);
-  const [selectedKeys, setSelectedKeys] = React.useState(new Set(["all"]));
-  const {
-    items: sections,
-    hasMore: hasMoreSection,
-    isLoading: isLoadingSection,
-    onLoadMore: onLoadMoreSection,
-  } = useGurdianSections({
-    fetchDelay: 1500,
-  });
-  const [, scrollerSectionRef] = useInfiniteScroll({
-    hasMore: hasMoreSection,
-    isEnabled: isOpenSectionList,
-    shouldUseLoader: false,
-    onLoadMore: onLoadMoreSection,
-  });
+  const [selectedKeys, setSelectedKeys] = React.useState(new Set([]));
+  const [category, setCategory] = React.useState<any>(new Set([]));
+  const [date, setDate] = React.useState<any>(null);
 
   const selectedValue: string = React.useMemo(
     () => Array.from(selectedKeys).join(", ").split("_").join(" "),
@@ -63,6 +49,13 @@ export const FilterModal = ({
 
   const navigate = useNavigate({ from: "/" });
   const routeSearch = routeApi.useSearch();
+
+  useEffect(() => {
+    setSelectedKeys(new Set([routeSearch?.source]) as any);
+    setDate(routeSearch?.date ? parseDate(routeSearch?.date) : null);
+    setCategory(routeSearch?.category);
+    return () => {};
+  }, [routeSearch]);
 
   return (
     <Modal isOpen={isOpen} onOpenChange={onOpenChange} placement={placement}>
@@ -88,9 +81,9 @@ export const FilterModal = ({
                   disallowEmptySelection
                   selectionMode="single"
                   selectedKeys={selectedKeys}
-                  onSelectionChange={(val) => {
-                    console.log("BBBNNNN", val);
-                    setSelectedKeys(new Set([val.currentKey]));
+                  onSelectionChange={(val: any) => {
+                    setSelectedKeys(val.currentKey);
+                    //setSelectedKeys(new Set([val.currentKey]));
                   }}
                 >
                   {siteConfig.newsSourceItems.map((item) => {
@@ -101,36 +94,26 @@ export const FilterModal = ({
                 </DropdownMenu>
               </Dropdown>
 
-              <DatePicker label="Date" />
+              <DatePicker
+                label="Date"
+                onChange={(e: any) => {
+                  setDate(e);
+                }}
+                value={date}
+              />
 
               <Select
-                isLoading={isLoadingSection}
-                items={sections}
-                label="Filter by Section"
-                placeholder="Select Section"
-                scrollRef={scrollerSectionRef}
-                onOpenChange={setIsSectionOpen}
-                isMultiline={true}
-                selectionMode="single"
-                classNames={{
-                  base: "w-full",
-                  trigger: "min-h-12 py-2",
-                }}
-                renderValue={(items) => {
-                  return (
-                    <div className="flex flex-wrap gap-2">
-                      {items?.map((item) => (
-                        <Chip key={item.name}>{item?.data.name}</Chip>
-                      ))}
-                    </div>
-                  );
+                label="Select a category"
+                selectedKeys={new Set([category])}
+                onSelectionChange={(e: any) => {
+                  setCategory(e?.currentKey);
                 }}
               >
-                {(item) => (
-                  <SelectItem key={item?.id} className="capitalize">
-                    {item?.name}
+                {siteConfig?.categories?.map((category) => (
+                  <SelectItem key={category.id} value={category.id}>
+                    {category.name}
                   </SelectItem>
-                )}
+                ))}
               </Select>
             </ModalBody>
             <ModalFooter>
@@ -140,11 +123,17 @@ export const FilterModal = ({
               <Button
                 color="primary"
                 onPress={() => {
-                  navigate({
+                  navigateWithFilteredSearchParams({
+                    navigate,
                     to: "/",
-                    search: {
+                    searchParams: {
                       ...routeSearch,
-                      source: Array.from(selectedKeys)[0],
+                      source:
+                        selectedKeys.size === 0
+                          ? null
+                          : Array.from(selectedKeys)[0],
+                      date: date ? date?.toString() : null,
+                      category: category?.size === 0 ? null : category,
                     },
                   });
                   onClose();

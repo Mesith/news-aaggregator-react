@@ -1,7 +1,7 @@
 import React from "react";
 import { GURDIAN_API_KEY, GURDIAN_URL } from "./guardianApi";
 export function useGurdianAuthors({ fetchDelay = 0 } = {}) {
-  const [items, setItems] = React.useState([]);
+  const [items, setItems] = React.useState<any>([]);
   const [hasMore, setHasMore] = React.useState(true);
   const [isLoading, setIsLoading] = React.useState(false);
   const [offset, setOffset] = React.useState(0);
@@ -19,7 +19,7 @@ export function useGurdianAuthors({ fetchDelay = 0 } = {}) {
         await new Promise((resolve) => setTimeout(resolve, fetchDelay));
       }
 
-      let res = await fetch(
+      const res = await fetch(
         `${GURDIAN_URL}/search?api-key=${GURDIAN_API_KEY}&&show-fields=byline&page=${currentOffset}&page=${limit}`,
         { signal }
       );
@@ -28,7 +28,7 @@ export function useGurdianAuthors({ fetchDelay = 0 } = {}) {
         throw new Error("Network response was not ok");
       }
 
-      let json = await res.json();
+      const json = await res.json();
 
       setHasMore(json.next !== null);
       json.response.results.forEach((article: any) => {
@@ -40,7 +40,7 @@ export function useGurdianAuthors({ fetchDelay = 0 } = {}) {
         }
       });
       setItems((prevItems: any) => [...prevItems, ...Array.from(authorsSet)]);
-    } catch (error) {
+    } catch (error: any) {
       if (error.name === "AbortError") {
         console.log("Fetch aborted");
       } else {

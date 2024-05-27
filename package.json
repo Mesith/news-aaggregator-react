@@ -10,6 +10,7 @@
     "preview": "vite preview"
   },
   "dependencies": {
+    "@internationalized/date": "^3.5.4",
     "@nextui-org/autocomplete": "^2.0.16",
     "@nextui-org/button": "^2.0.31",
     "@nextui-org/chip": "^2.0.28",
@@ -20,6 +21,7 @@
     "@nextui-org/kbd": "^2.0.28",
     "@nextui-org/link": "^2.0.29",
     "@nextui-org/react": "^2.3.6",
+    "@nextui-org/spinner": "^2.0.28",
     "@nextui-org/system": "^2.1.2",
     "@nextui-org/theme": "^2.2.3",
     "@nextui-org/tooltip": "^2.0.33",
@@ -38,6 +40,7 @@
     "@tanstack/react-query-devtools": "^5.37.1",
     "@tanstack/router-devtools": "^1.33.8",
     "@tanstack/router-vite-plugin": "^1.33.12",
+    "@types/node": "^20.12.12",
     "@types/react": "^18.2.66",
     "@types/react-dom": "^18.2.22",
     "@typescript-eslint/eslint-plugin": "^7.2.0",

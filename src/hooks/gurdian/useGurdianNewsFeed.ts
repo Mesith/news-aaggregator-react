@@ -1,17 +1,30 @@
-import { useInfiniteQuery } from "@tanstack/react-query";
+
 import { GURDIAN_API_KEY, gurdianApi } from "./guardianApi";
 
 export const fetchGurdianNews = async ({
   pageParam,
   search,
+  date,
+  category,
 }: {
   pageParam: number;
+  search: string;
+  date?: string;
+  category?: string;
 }) => {
-  const response = await gurdianApi.get(
-    `search?api-key=${GURDIAN_API_KEY}&show-fields=byline&page=${pageParam ?? 1}`
-  );
-  const todos = await response.json();
-  return todos;
+  const params = new URLSearchParams({
+    "api-key": GURDIAN_API_KEY,
+    q: search,
+    "show-fields": "byline",
+    page: String(pageParam ?? 1),
+  });
+
+  if (date) params.append("from-date", date);
+  if (category) params.append("section", category);
+
+  const response = await gurdianApi.get(`search?${params.toString()}`);
+  const gurdianNews = await response.json();
+  return gurdianNews;
 };
 
 export const transformGurdianNewsItem = (response: any) => {
@@ -30,34 +43,3 @@ export const transformGurdianNewsItem = (response: any) => {
   }
 };
 
-export const useGurdianNews = (page: number = 1) => {
-  const queryInfo = useInfiniteQuery({
-    queryKey: ["gaurdianNews"],
-    queryFn: ({ pageParam }) => fetchGurdianNews({ pageParam }),
-    getNextPageParam: (lastPage, allPages) => {
-      return lastPage.response?.currentPage + 1 < lastPage.response?.pages
-        ? lastPage.response?.currentPage + 1
-        : undefined;
-    },
-  });
-  //console.log(queryInfo.data);
-  const t = {
-    ...queryInfo,
-    data: {
-      pageParam: queryInfo.data?.pageParams,
-      pages: queryInfo.data?.pages?.map((page: any) =>
-        page.response?.results?.map((article: any) => {
-          return {
-            id: article.id,
-            title: article.webTitle,
-            author: article.fields?.byline,
-            date: article.webPublicationDate,
-            url: article.webUrl,
-          };
-        })
-      ),
-    },
-  };
-  //console.log("FORMAT", t);
-  return t;
-};

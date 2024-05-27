@@ -23,20 +23,28 @@ export const siteConfig = {
   ],
   categories: [
     {
-      id: 1,
+      id: "all",
       name: "All",
     },
     {
-      id: 2,
-      name: "Politics",
-    },
-    {
-      id: 3,
+      id: "business",
       name: "Business",
     },
     {
-      id: 4,
-      name: "Technology",
+      id: "entertainment",
+      name: "Entertainment",
+    },
+    {
+      id: "general",
+      name: "General",
+    },
+    {
+      id: "sports",
+      name: "Sports",
+    },
+    {
+      id: "health",
+      name: "Health",
     },
   ],
 };

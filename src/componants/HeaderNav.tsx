@@ -34,7 +34,6 @@ export const HeaderNav = () => {
   const SearchInput = () => {
     const routeSearch = routeApi.useSearch();
     const [value, setValue] = React.useState(routeSearch?.query || "");
-    console.log("VVVVVVVV", routeSearch);
     return (
       <Input
         aria-label="Search"
@@ -97,11 +96,11 @@ export const HeaderNav = () => {
           <h1 className={subtitle()}>Aggrigator</h1>
         </NavbarBrand>
       </NavbarContent>
-      {/* <PreferenceModal
+      <PreferenceModal
         isOpen={isOpen}
         placement={placement}
         onOpenChange={onOpenChange}
-      /> */}
+      />
       <FilterModal
         isOpen={isFilterOpen}
         placement={placement}

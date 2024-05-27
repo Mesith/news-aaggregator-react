@@ -1,19 +1,35 @@
-import { useInfiniteQuery } from "@tanstack/react-query";
+
 import { NEWS_API_KEY, newsApi } from "./newsApiApi";
 
 export const fetchApiNews = async ({
-  pageParam,
-  search,
+  pageParam = 1,
+  search = "all",
+  date,
+  category,
 }: {
-  pageParam: number;
-  search: string;
+  pageParam?: number;
+  search?: string;
+  date?: string;
+  category?: string;
 }) => {
-  const response = await newsApi.get(
-    `everything?q=${search ?? "all"}&apiKey=${NEWS_API_KEY}&page=${pageParam ?? 1}&pageSize=10`
-  );
-  const todos = await response.json();
-  return todos;
+  try {
+    let url = `everything?q=${encodeURIComponent(search || category || "all")}&apiKey=${NEWS_API_KEY}&page=${pageParam}&pageSize=10&sort=popularity`;
+    if (date) {
+      url += `&from=${date}`;
+    }
+    const response = await newsApi.get(url);
+
+    if (!response.ok) {
+      throw new Error(`Error fetching news: ${response.statusText}`);
+    }
+    const apiNews = await response.json();
+    return apiNews;
+  } catch (error) {
+    console.error("Error fetching news:", error);
+    throw error;
+  }
 };
+
 
 export const transformApiNewsItem = (articles: any) => {
   if (articles.length > 0) {
@@ -32,34 +48,3 @@ export const transformApiNewsItem = (articles: any) => {
   }
 };
 
-export const useNewsAPINews = (page: number = 1) => {
-  const queryInfo = useInfiniteQuery({
-    queryKey: ["newsApiNews"],
-    queryFn: ({ pageParam }) => fetchApiNews({ pageParam }),
-    getNextPageParam: (lastPage, allPages) => {
-      return allPages?.length + 1;
-    },
-  });
-
-  //console.log(queryInfo.data);
-  const t = {
-    ...queryInfo,
-    data: {
-      pageParam: queryInfo.data?.pageParams,
-      pages: queryInfo.data?.pages?.map((page: any) =>
-        page.articles?.map((article: any) => {
-          return {
-            id: article.url,
-            title: article.title,
-            author: article.fields?.byline,
-            date: article.webPublicationDate,
-            url: "https://newsapi.org",
-            imageUrl: article.urlToImage,
-          };
-        })
-      ),
-    },
-  };
-  //console.log("FORMAT", t);
-  return t;
-};

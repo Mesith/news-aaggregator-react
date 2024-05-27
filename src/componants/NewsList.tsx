@@ -1,29 +1,22 @@
-function extractDomain(url: string) {
-  try {
-    const { hostname } = new URL(url);
-    return hostname;
-  } catch (error) {
-    console.error("Invalid URL:", error);
-    return null;
-  }
-}
+import { LegacyRef } from "react";
+import NewsItem, { NewsItemProp } from "./NewsItem";
 
-const NewsList = ({ news, lastref }: any) => {
+const NewsList = ({
+  news,
+  lastref,
+}: {
+  news: NewsItemProp[];
+  lastref: LegacyRef<HTMLDivElement>;
+}) => {
   return (
     <div>
-      {news?.map((newsItem, index) => {
-        return (
-          <div
-            ref={lastref}
-            key={newsItem.id}
-            className="border border-gray-300 p-24 m-24"
-          >
-            <h2>{newsItem.title}</h2>
-            <p>{newsItem.description}</p>
-            <p>{extractDomain(newsItem.url)}</p>
-          </div>
-        );
-      })}
+      {news?.map((newsItem, index) => (
+        <NewsItem
+          key={newsItem.id}
+          newsItem={newsItem}
+          lastref={index === news.length - 1 ? lastref : null}
+        />
+      ))}
     </div>
   );
 };

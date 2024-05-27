@@ -1,4 +1,5 @@
-import React, { lazy, Suspense } from "react";
+import  { lazy, Suspense } from "react";
+
 
 export const TanStackRouterDevtools = () => {
   const LazyComponent =

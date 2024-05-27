@@ -14,13 +14,13 @@ import {
   DropdownMenu,
   DropdownItem,
 } from "@nextui-org/dropdown";
-import { Autocomplete, AutocompleteItem } from "@nextui-org/autocomplete";
 import React from "react";
 import { siteConfig } from "../config";
-import { useGurdianAuthors } from "../hooks/gurdian/useGurdianAuthors";
-import { useInfiniteScroll } from "@nextui-org/use-infinite-scroll";
-import { Chip } from "@nextui-org/chip";
-import { useGurdianSections } from "../hooks/gurdian/loadGurdianSections";
+// import { useGurdianAuthors } from "../hooks/gurdian/useGurdianAuthors";
+// import { useInfiniteScroll } from "@nextui-org/use-infinite-scroll";
+// import { Chip } from "@nextui-org/chip";
+// import { useGurdianSections } from "../hooks/gurdian/loadGurdianSections";
+import Cookies from "js-cookie";
 
 export const PreferenceModal = ({
   isOpen,
@@ -37,47 +37,46 @@ export const PreferenceModal = ({
     | "top-center"
     | "bottom-center";
 }) => {
-  const [isOpenAuthorsList, setIsOpen] = React.useState(false);
-  const [isOpenSectionList, setIsSectionOpen] = React.useState(false);
-  const [selectedKeys, setSelectedKeys] = React.useState(new Set([]));
-  const {
-    items: authors,
-    hasMore,
-    isLoading,
-    onLoadMore,
-  } = useGurdianAuthors({
-    fetchDelay: 1500,
-  });
+  //   const [isOpenAuthorsList, setIsOpen] = React.useState(false);
+  //   const [isOpenSectionList, setIsSectionOpen] = React.useState(false);
+  const [selectedKeys, setSelectedKeys] = React.useState<any>(new Set([]));
+  const [category, setCategory] = React.useState<any>(new Set([]));
+  //   const {
+  //     items: authors,
+  //     hasMore,
+  //     isLoading,
+  //     onLoadMore,
+  //   } = useGurdianAuthors({
+  //     fetchDelay: 1500,
+  //   });
 
-  const {
-    items: sections,
-    hasMore: hasMoreSection,
-    isLoading: isLoadingSection,
-    onLoadMore: onLoadMoreSection,
-  } = useGurdianSections({
-    fetchDelay: 1500,
-  });
+  //   const {
+  //     items: sections,
+  //     hasMore: hasMoreSection,
+  //     isLoading: isLoadingSection,
+  //     onLoadMore: onLoadMoreSection,
+  //   } = useGurdianSections({
+  //     fetchDelay: 1500,
+  //   });
 
-  const [, scrollerRef] = useInfiniteScroll({
-    hasMore,
-    isEnabled: isOpenAuthorsList,
-    shouldUseLoader: false,
-    onLoadMore,
-  });
+  //   const [, scrollerRef] = useInfiniteScroll({
+  //     hasMore,
+  //     isEnabled: isOpenAuthorsList,
+  //     shouldUseLoader: false,
+  //     onLoadMore,
+  //   });
 
-  const [, scrollerSectionRef] = useInfiniteScroll({
-    hasMore: hasMoreSection,
-    isEnabled: isOpenSectionList,
-    shouldUseLoader: false,
-    onLoadMore: onLoadMoreSection,
-  });
+  //   const [, scrollerSectionRef] = useInfiniteScroll({
+  //     hasMore: hasMoreSection,
+  //     isEnabled: isOpenSectionList,
+  //     shouldUseLoader: false,
+  //     onLoadMore: onLoadMoreSection,
+  //   });
 
   const selectedValue: string = React.useMemo(
-    () => Array.from(selectedKeys).join(", ").replaceAll("_", " "),
+    () => Array.from(selectedKeys).join(", ").split("_").join(" "),
     [selectedKeys]
   );
-
-  console.log(selectedValue);
 
   return (
     <Modal isOpen={isOpen} onOpenChange={onOpenChange} placement={placement}>
@@ -103,25 +102,36 @@ export const PreferenceModal = ({
                   disallowEmptySelection
                   selectionMode="single"
                   selectedKeys={selectedKeys}
-                  onSelectionChange={setSelectedKeys}
+                  onSelectionChange={(val: any) => {
+                    //setSelectedKeys(new Set([val.currentKey]));
+                    setSelectedKeys(val.currentKey);
+                    Cookies.set("source", val.currentKey);
+                  }}
                 >
                   {siteConfig.newsSourceItems.map((item) => {
                     return (
-                      <DropdownItem key={item.name}>{item.name}</DropdownItem>
+                      <DropdownItem key={item.id}>{item.name}</DropdownItem>
                     );
                   })}
                 </DropdownMenu>
               </Dropdown>
 
-              {/* <Autocomplete label="Select an news category">
-                {siteConfig.categories.map((category) => (
-                  <AutocompleteItem key={category.id} value={category.id}>
-                    {category.name}
-                  </AutocompleteItem>
-                ))}
-              </Autocomplete> */}
-
               <Select
+                label="Select a category"
+                selectedKeys={new Set([category])}
+                onSelectionChange={(e: any) => {
+                  setCategory(e?.currentKey);
+                  Cookies.set("category", e.currentKey);
+                }}
+              >
+                {siteConfig?.categories?.map((category) => (
+                  <SelectItem key={category.id} value={category.id}>
+                    {category.name}
+                  </SelectItem>
+                ))}
+              </Select>
+
+              {/* <Select
                 isLoading={isLoadingSection}
                 items={sections}
                 label="Filter by Section"
@@ -149,9 +159,9 @@ export const PreferenceModal = ({
                     {item?.name}
                   </SelectItem>
                 )}
-              </Select>
+              </Select> */}
 
-              <Select
+              {/* <Select
                 isLoading={isLoading}
                 items={authors}
                 label="Pick Authors"
@@ -179,7 +189,7 @@ export const PreferenceModal = ({
                     {item?.byline}
                   </SelectItem>
                 )}
-              </Select>
+              </Select> */}
             </ModalBody>
             <ModalFooter>
               <Button color="danger" variant="flat" onPress={onClose}>
